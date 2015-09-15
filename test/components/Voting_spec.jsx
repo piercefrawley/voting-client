@@ -1,7 +1,9 @@
 import React from 'react/addons';
 import Voting from '../../src/components/Voting';
+import {expect} from 'chai';
 
-const {renderIntoDocument} = React.addons.TestUtils;
+const {renderIntoDocument, scryRenderedDOMComponentsWithTag, Simulate}
+  = React.addons.TestUtils;
 
 describe('Voting', () => {
 
@@ -9,6 +11,24 @@ describe('Voting', () => {
     const component = renderIntoDocument(
       <Voting pair={["Trainspotting", "28 Days Later"]} />
     );
+    const buttons = scryRenderedDOMComponentsWithTag(component, 'button');
+
+    expect(buttons.length).to.equal(2);
+    expect(buttons[0].getDOMNode().textContent).to.equal('Trainspotting');
+    expect(buttons[1].getDOMNode().textContent).to.equal('28 Days Later');
   });
 
+  it('invokes callback when a button is clicked', () => {
+    let votedWith;
+    let vote = (entry) => votedWith = entry;
+
+    const component = renderIntoDocument(
+      <Voting pair={["Trainspotting", "28 Days Later"]}
+              vote={vote}/>
+    );
+    const buttons = scryRenderedDOMComponentsWithTag(component, 'button');
+    Simulate.click(buttons[0].getDOMNode());
+
+    expect(votedWith).to.equal('Trainspotting');
+  });
 });
